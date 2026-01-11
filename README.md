@@ -63,6 +63,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Added HTTP host tests (Fastify `inject`) for health, turn, validation, auth | Next: replace the canned in-app model with a real model port + MCP web tools later (agent stays unchanged). |
 | 2026-01-11 | Removed `src/global/` folder (host/app layer owns wiring now) | Next: keep orchestration purity in `src/app/` and preserve `src/agent/` as a black-box engine. |
 | 2026-01-11 | Tightened HTTP host correctness (auth short-circuit, explicit returns, centralized TurnEngine, 500 JSON) | Next: wire real engine composition in `src/app/createAgent.ts` (still keep `src/agent` pure). |
+| 2026-01-11 | Added `web/` frontend (Vite + React TS) calling `/turn` and persisting transcript locally | Next: decide on deployment approach (static web + same-origin reverse proxy vs separate origin). |
 
 ## Near-term roadmap
 
