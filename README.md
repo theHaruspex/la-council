@@ -52,6 +52,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Fixed `project-reporter` to keep directory tree visible under logic-only filtering | Next: consider adding a CLI/config file for include/exclude rules (still keep defaults safe/noisy-file resistant). |
 | 2026-01-11 | Added minimal TypeScript + Vitest scaffolding | Next: define `src/shared` contracts, then implement a DI-first `AgentRuntime` with mocks + unit tests. |
 | 2026-01-11 | Added canonical `src/shared` contracts (handoff, citations, agent result) | Next: implement agent ports (model/tools/state/trace) and the minimal runtime loop. |
+| 2026-01-11 | Restricted `project-reporter` output to `src/**` only | Next: proceed with `src/agent` ports/runtime without cluttering reports with tooling/docs. |
 
 ## Near-term roadmap
 

@@ -10,6 +10,10 @@ CONFIG = {
     # This keeps reports small and avoids noise from docs, assets, lockfiles, and local data.
     "logic_only": True,
 
+    # Hard allowlist: only include paths under src/.
+    # This repo uses project-reporter for code (logic) ingestion, not infra/docs.
+    "include_globs": ["src/**"],
+
     # Directories to exclude anywhere in the tree (by path segment).
     "exclude_paths": [
         ".git",
@@ -20,6 +24,8 @@ CONFIG = {
         ".pytest_cache",
         ".mypy_cache",
         ".ruff_cache",
+        "docs",
+        "ops",
         "node_modules",
         "dist",
         "build",
@@ -34,6 +40,11 @@ CONFIG = {
         ".DS_Store",
         ".env",
         ".gitignore",
+        # repo tooling (non-logic for ingestion purposes)
+        "package.json",
+        "package-lock.json",
+        "tsconfig.json",
+        "vitest.config.ts",
         # lockfiles (non-logic)
         "package-lock.json",
         "yarn.lock",
@@ -130,6 +141,15 @@ def find_project_root(start_path: Path) -> Path:
 def _rel_posix(path: Path, project_root: Path) -> str:
     return path.relative_to(project_root).as_posix()
 
+def _is_included(rel_posix: str) -> bool:
+    include = CONFIG.get("include_globs", [])
+    if not include:
+        return True
+    # ensure `src/` directory itself is included when allowlisting `src/**`
+    if rel_posix == "src":
+        return True
+    return any(fnmatch(rel_posix, pat) for pat in include)
+
 def should_exclude(file_path: Path, script_path: Path, project_root: Path) -> bool:
     if file_path.resolve() == script_path:
         return True
@@ -140,6 +160,8 @@ def should_exclude(file_path: Path, script_path: Path, project_root: Path) -> bo
         return True
 
     rel_posix = _rel_posix(file_path, project_root)
+    if not _is_included(rel_posix):
+        return True
     for pat in CONFIG.get("exclude_globs", []):
         if fnmatch(rel_posix, pat):
             return True
