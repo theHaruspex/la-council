@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/turn": "http://localhost:8787",
-      "/healthz": "http://localhost:8787"
+      "/turn": "http://127.0.0.1:8787",
+      "/healthz": "http://127.0.0.1:8787"
     }
   }
 });

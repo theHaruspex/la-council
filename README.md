@@ -43,6 +43,37 @@ After every meaningful update in this repo:
 4. `git commit -m "<clear message>"`
 5. `git push`
 
+## Run locally
+
+1) Install deps:
+
+```bash
+npm install
+cd web && npm install
+```
+
+2) Terminal A (backend):
+
+```bash
+npm run dev:api
+```
+
+- Optional auth: set `HTTP_TOKEN=...` before running to require `Authorization: Bearer <token>`.
+
+3) Terminal B (web):
+
+```bash
+cd web && npm run dev
+```
+
+- If backend auth is enabled, set `VITE_HTTP_TOKEN` in `web/.env.local` (e.g. `VITE_HTTP_TOKEN=...`).
+
+4) Quick sanity check:
+
+```bash
+curl http://127.0.0.1:8787/healthz
+```
+
 ## Current State
 
 | Date (YYYY-MM-DD) | Change | Notes / Next |
@@ -63,7 +94,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Added HTTP host tests (Fastify `inject`) for health, turn, validation, auth | Next: replace the canned in-app model with a real model port + MCP web tools later (agent stays unchanged). |
 | 2026-01-11 | Removed `src/global/` folder (host/app layer owns wiring now) | Next: keep orchestration purity in `src/app/` and preserve `src/agent/` as a black-box engine. |
 | 2026-01-11 | Tightened HTTP host correctness (auth short-circuit, explicit returns, centralized TurnEngine, 500 JSON) | Next: wire real engine composition in `src/app/createAgent.ts` (still keep `src/agent` pure). |
-| 2026-01-11 | Added `web/` frontend (Vite + React TS) calling `/turn` and persisting transcript locally | Next: decide on deployment approach (static web + same-origin reverse proxy vs separate origin). |
+| 2026-01-11 | Added root `dev:api` script + hardened Vite proxy to IPv4 + local run docs | Next: implement the `web/` chat UI that calls `/turn` (frontend layer). |
 
 ## Near-term roadmap
 
