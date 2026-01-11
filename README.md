@@ -9,7 +9,7 @@ Make LA City Council activity *legible*: find the right primary sources, connect
 ## Non-negotiable architectural boundaries
 
 - **Global loop is pure**
-  - `src/global/` owns the lifecycle + wiring (Signal ↔ AgentRuntime ↔ MCP surfaces).
+  - The application layer owns the lifecycle + wiring (host ↔ agent ↔ capability surfaces).
   - It does **not** contain LLM prompts, tool policy, ranking heuristics, or model/provider specifics.
 - **Agent runtime is pluggable**
   - `src/agent/` can swap models/providers, change prompting strategies, and flush/replace context without changing transports or capability servers.
@@ -61,6 +61,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Removed `src/signal/` and introduced `src/app/` as the host layer (HTTP next) | Next: implement Fastify HTTP host that maps requests to `HandoffEnvelope` and returns `AgentResult`. |
 | 2026-01-11 | Added Fastify HTTP host under `src/app/` + `src/index.ts` entrypoint | Next: add host tests using `app.inject()` (no real ports) and enforce auth + validation behavior. |
 | 2026-01-11 | Added HTTP host tests (Fastify `inject`) for health, turn, validation, auth | Next: replace the canned in-app model with a real model port + MCP web tools later (agent stays unchanged). |
+| 2026-01-11 | Removed `src/global/` folder (host/app layer owns wiring now) | Next: keep orchestration purity in `src/app/` and preserve `src/agent/` as a black-box engine. |
 
 ## Near-term roadmap
 
@@ -72,7 +73,6 @@ After every meaningful update in this repo:
 
 ## Directory layout (minimal)
 
-- `src/global/`: global loop + lifecycle wiring (**pure**)
 - `src/agent/`: LLM orchestrator / agent runtime (future)
 - `src/mcp/`: MCP capability servers (future)
 - `src/shared/`: canonical handoff types, ids, citations (future)
