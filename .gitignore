@@ -1,0 +1,21 @@
+.DS_Store
+
+# local runtime data (keep the directory via .gitkeep)
+data/**
+!data/.gitkeep
+
+# secrets / env
+.env
+.env.*
+!.env.example
+
+# dependencies / builds
+node_modules/
+dist/
+build/
+
+# logs
+*.log
+logs/
+
+
