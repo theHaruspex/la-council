@@ -18,4 +18,7 @@ build/
 *.log
 logs/
 
+# project-reporter output
+ops/project-reporter/file_contents_report.txt
+
 

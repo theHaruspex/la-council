@@ -48,6 +48,8 @@ After every meaningful update in this repo:
 | Date (YYYY-MM-DD) | Change | Notes / Next |
 |---|---|---|
 | 2026-01-11 | Repo created + skeleton + README | Next: lock down architecture notes in `docs/` and define the first “pure” global loop interfaces (no implementation). |
+| 2026-01-11 | Imported `project-reporter` into `ops/` and tightened logic-only filtering | Next: run it against this repo and confirm it excludes docs/locks/assets while retaining source + config. |
+| 2026-01-11 | Fixed `project-reporter` to keep directory tree visible under logic-only filtering | Next: consider adding a CLI/config file for include/exclude rules (still keep defaults safe/noisy-file resistant). |
 
 ## Near-term roadmap
 
