@@ -57,6 +57,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Implemented `src/agent/runtime.ts` (tool loop, allowlist, tracing hooks) | Next: add mocks + vitest unit tests (final response, tool call, disallowed tool). |
 | 2026-01-11 | Added agent test doubles (MockModel, MemoryStateStore, FakeTools) | Next: add vitest unit tests for runtime behavior + safety. |
 | 2026-01-11 | Added vitest unit tests for `AgentRuntime` | Next: optional tiny manual runner; then start wiring global loop later (outside agent). |
+| 2026-01-11 | Fixed `HandoffEnvelope` type to match input contract (optional `mode`) | Next: proceed confidently with consumers passing envelopes without `mode` while parse defaults to `mvp`. |
 
 ## Near-term roadmap
 

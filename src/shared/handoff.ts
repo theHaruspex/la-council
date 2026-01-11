@@ -9,6 +9,8 @@ export const HandoffEnvelopeSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional()
 });
 
-export type HandoffEnvelope = z.infer<typeof HandoffEnvelopeSchema>;
+// Contract type for callers (input). Note: `.default()` makes the *parsed/output* value required.
+export type HandoffEnvelope = z.input<typeof HandoffEnvelopeSchema>;
+export type ParsedHandoffEnvelope = z.output<typeof HandoffEnvelopeSchema>;
 
 
