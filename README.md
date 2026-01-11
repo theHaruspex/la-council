@@ -51,6 +51,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Imported `project-reporter` into `ops/` and tightened logic-only filtering | Next: run it against this repo and confirm it excludes docs/locks/assets while retaining source + config. |
 | 2026-01-11 | Fixed `project-reporter` to keep directory tree visible under logic-only filtering | Next: consider adding a CLI/config file for include/exclude rules (still keep defaults safe/noisy-file resistant). |
 | 2026-01-11 | Added minimal TypeScript + Vitest scaffolding | Next: define `src/shared` contracts, then implement a DI-first `AgentRuntime` with mocks + unit tests. |
+| 2026-01-11 | Added canonical `src/shared` contracts (handoff, citations, agent result) | Next: implement agent ports (model/tools/state/trace) and the minimal runtime loop. |
 
 ## Near-term roadmap
 
