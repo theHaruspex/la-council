@@ -11,6 +11,7 @@
     "dev": "vitest"
   },
   "dependencies": {
+    "fastify": "^5.6.0",
     "zod": "^4.1.9"
   },
   "devDependencies": {
