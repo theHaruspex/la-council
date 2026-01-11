@@ -60,6 +60,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Fixed `HandoffEnvelope` type to match input contract (optional `mode`) | Next: proceed confidently with consumers passing envelopes without `mode` while parse defaults to `mvp`. |
 | 2026-01-11 | Removed `src/signal/` and introduced `src/app/` as the host layer (HTTP next) | Next: implement Fastify HTTP host that maps requests to `HandoffEnvelope` and returns `AgentResult`. |
 | 2026-01-11 | Added Fastify HTTP host under `src/app/` + `src/index.ts` entrypoint | Next: add host tests using `app.inject()` (no real ports) and enforce auth + validation behavior. |
+| 2026-01-11 | Added HTTP host tests (Fastify `inject`) for health, turn, validation, auth | Next: replace the canned in-app model with a real model port + MCP web tools later (agent stays unchanged). |
 
 ## Near-term roadmap
 
