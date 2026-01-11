@@ -54,6 +54,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Added canonical `src/shared` contracts (handoff, citations, agent result) | Next: implement agent ports (model/tools/state/trace) and the minimal runtime loop. |
 | 2026-01-11 | Restricted `project-reporter` output to `src/**` only | Next: proceed with `src/agent` ports/runtime without cluttering reports with tooling/docs. |
 | 2026-01-11 | Added DI-first agent ports (model/tools/state/trace) | Next: implement `AgentRuntime.handle()` loop + tool-call enforcement and safety caps. |
+| 2026-01-11 | Implemented `src/agent/runtime.ts` (tool loop, allowlist, tracing hooks) | Next: add mocks + vitest unit tests (final response, tool call, disallowed tool). |
 
 ## Near-term roadmap
 
