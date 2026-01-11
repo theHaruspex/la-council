@@ -55,6 +55,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Restricted `project-reporter` output to `src/**` only | Next: proceed with `src/agent` ports/runtime without cluttering reports with tooling/docs. |
 | 2026-01-11 | Added DI-first agent ports (model/tools/state/trace) | Next: implement `AgentRuntime.handle()` loop + tool-call enforcement and safety caps. |
 | 2026-01-11 | Implemented `src/agent/runtime.ts` (tool loop, allowlist, tracing hooks) | Next: add mocks + vitest unit tests (final response, tool call, disallowed tool). |
+| 2026-01-11 | Added agent test doubles (MockModel, MemoryStateStore, FakeTools) | Next: add vitest unit tests for runtime behavior + safety. |
 
 ## Near-term roadmap
 
