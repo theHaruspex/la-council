@@ -14,7 +14,7 @@ export function requireBearerToken(token?: string): preHandlerHookHandler {
   return async function requireAuth(req: FastifyRequest, reply: FastifyReply) {
     const got = req.headers[AUTH_HEADER] as string | undefined;
     if (got !== expected) {
-      reply.code(401).send({ error: "unauthorized" });
+      return reply.code(401).send({ error: "unauthorized" });
     }
   };
 }

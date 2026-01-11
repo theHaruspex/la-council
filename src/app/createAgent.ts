@@ -19,7 +19,7 @@ class NoopTools implements ToolExecutor {
     return [];
   }
 
-  async call(): Promise<ToolResult> {
+  async call(_tool: string, _args: unknown): Promise<ToolResult> {
     return { content: "" };
   }
 }

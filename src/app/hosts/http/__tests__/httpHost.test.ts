@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildHttpServer } from "../server.js";
-import type { TurnEngine } from "../routes.js";
+import type { TurnEngine } from "../types.js";
 
 const engine: TurnEngine = {
   handle: async () => ({ replyText: "ok", citations: [] })
@@ -11,7 +11,7 @@ const env = { host: "127.0.0.1", port: 0, token: "secret" };
 
 describe("http host", () => {
   it("GET /healthz returns ok", async () => {
-    const app = buildHttpServer({ engine, env });
+    const app = await buildHttpServer({ engine, env });
     await app.ready();
 
     const res = await app.inject({ method: "GET", url: "/healthz" });
@@ -22,7 +22,7 @@ describe("http host", () => {
   });
 
   it("POST /turn with valid envelope returns AgentResult", async () => {
-    const app = buildHttpServer({ engine, env });
+    const app = await buildHttpServer({ engine, env });
     await app.ready();
 
     const res = await app.inject({
@@ -45,7 +45,7 @@ describe("http host", () => {
   });
 
   it("POST /turn missing fields returns 400", async () => {
-    const app = buildHttpServer({ engine, env });
+    const app = await buildHttpServer({ engine, env });
     await app.ready();
 
     const res = await app.inject({
@@ -61,7 +61,7 @@ describe("http host", () => {
   });
 
   it("auth is enforced when token is set", async () => {
-    const app = buildHttpServer({ engine, env });
+    const app = await buildHttpServer({ engine, env });
     await app.ready();
 
     const missing = await app.inject({
