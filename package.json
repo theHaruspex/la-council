@@ -1,0 +1,23 @@
+{
+  "name": "la-council",
+  "private": false,
+  "version": "0.0.0",
+  "description": "Signal-first LA City Council legibility assistant (MVP: web research + citations)",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo \"(stub) lint not configured yet\"",
+    "dev": "vitest"
+  },
+  "dependencies": {
+    "zod": "^4.1.9"
+  },
+  "devDependencies": {
+    "@types/node": "^24.4.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
+
+
