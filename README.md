@@ -58,6 +58,7 @@ After every meaningful update in this repo:
 | 2026-01-11 | Added agent test doubles (MockModel, MemoryStateStore, FakeTools) | Next: add vitest unit tests for runtime behavior + safety. |
 | 2026-01-11 | Added vitest unit tests for `AgentRuntime` | Next: optional tiny manual runner; then start wiring global loop later (outside agent). |
 | 2026-01-11 | Fixed `HandoffEnvelope` type to match input contract (optional `mode`) | Next: proceed confidently with consumers passing envelopes without `mode` while parse defaults to `mvp`. |
+| 2026-01-11 | Removed `src/signal/` and introduced `src/app/` as the host layer (HTTP next) | Next: implement Fastify HTTP host that maps requests to `HandoffEnvelope` and returns `AgentResult`. |
 
 ## Near-term roadmap
 
@@ -70,10 +71,10 @@ After every meaningful update in this repo:
 ## Directory layout (minimal)
 
 - `src/global/`: global loop + lifecycle wiring (**pure**)
-- `src/signal/`: Signal adapter/transport boundary (future)
 - `src/agent/`: LLM orchestrator / agent runtime (future)
 - `src/mcp/`: MCP capability servers (future)
 - `src/shared/`: canonical handoff types, ids, citations (future)
+- `src/app/`: application composition + hosts (HTTP for now; other transports later)
 - `docs/`: design notes, decisions, references
 - `ops/`: deployment notes, runner setup, etc.
 - `data/`: local runtime data (gitignored; directory kept via `.gitkeep`)
