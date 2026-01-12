@@ -74,6 +74,15 @@ cd web && npm run dev
 curl http://127.0.0.1:8787/healthz
 ```
 
+## Model configuration (app layer)
+
+- **Canned model (default)**:
+  - `AGENT_MODEL_PROVIDER=canned`
+- **OpenAI model**:
+  - `AGENT_MODEL_PROVIDER=openai`
+  - `AGENT_MODEL_NAME=<model-id>`
+  - `OPENAI_API_KEY=...`
+
 ## Current State
 
 | Date (YYYY-MM-DD) | Change | Notes / Next |
@@ -97,6 +106,7 @@ curl http://127.0.0.1:8787/healthz
 | 2026-01-11 | Added root `dev:api` script + hardened Vite proxy to IPv4 + local run docs | Next: implement the `web/` chat UI that calls `/turn` (frontend layer). |
 | 2026-01-11 | Agent engine supports batched multi-tool-call model outputs (`tool_calls`) | Next: wire a real model adapter that can emit parallel tool calls (no provider integration yet). |
 | 2026-01-11 | App composition is now config-driven for model + runtime settings (Option A) | Next: add a real model provider implementation behind the factory (OpenAI later). |
+| 2026-01-11 | Implemented OpenAI model provider behind `ModelPort` (Chat Completions + parallel tool calls) | Next: wire real MCP tools and run end-to-end with `/turn` using `AGENT_MODEL_PROVIDER=openai`. |
 
 ## Near-term roadmap
 
