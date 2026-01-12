@@ -13,6 +13,7 @@
     "dev:api": "HTTP_HOST=127.0.0.1 HTTP_PORT=8787 tsx src/index.ts"
   },
   "dependencies": {
+    "dotenv": "^17.2.2",
     "fastify": "^5.6.0",
     "openai": "^5.23.0",
     "zod": "^4.1.9"

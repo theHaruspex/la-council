@@ -37,6 +37,7 @@ const MAX_TOOL_CALLS_TEXT = "Sorry — I hit the maximum number of tool calls fo
 const DISALLOWED_TOOL_TEXT = "Sorry — that capability isn't enabled in this agent.";
 const TOOL_FAILED_TEXT = "Sorry — a tool failed while trying to help with that.";
 const EMPTY_TOOL_CALLS_TEXT = "Sorry — I received an empty tool call request.";
+const INVALID_TOOL_CALL_REQUEST_TEXT = "Sorry — I received an invalid tool call request.";
 
 function nowMs(): number {
   return Date.now();
@@ -134,6 +135,16 @@ export class AgentRuntime {
         }
 
         // tool calls (batched)
+        if (out.assistantMessage.role !== "assistant") {
+          turn.event("safety.invalid_assistant_message");
+          const result: AgentResult = { replyText: INVALID_TOOL_CALL_REQUEST_TEXT, citations, toolTrace };
+          turn.end("error", { toolCalls });
+          return AgentResultSchema.parse(result);
+        }
+
+        // Pattern A: preserve the assistant tool-call request message in the model-visible history.
+        messages.push(out.assistantMessage);
+
         if (!out.calls.length) {
           turn.event("safety.empty_tool_calls");
           const result: AgentResult = { replyText: EMPTY_TOOL_CALLS_TEXT, citations, toolTrace };

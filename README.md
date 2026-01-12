@@ -107,6 +107,7 @@ curl http://127.0.0.1:8787/healthz
 | 2026-01-11 | Agent engine supports batched multi-tool-call model outputs (`tool_calls`) | Next: wire a real model adapter that can emit parallel tool calls (no provider integration yet). |
 | 2026-01-11 | App composition is now config-driven for model + runtime settings (Option A) | Next: add a real model provider implementation behind the factory (OpenAI later). |
 | 2026-01-11 | Implemented OpenAI model provider behind `ModelPort` (Chat Completions + parallel tool calls) | Next: wire real MCP tools and run end-to-end with `/turn` using `AGENT_MODEL_PROVIDER=openai`. |
+| 2026-01-11 | Loaded `.env` automatically + persisted assistant tool-call request messages (Pattern A) | Next: implement real tool surfaces (MCP) and validate full OpenAI tool-call sequencing end-to-end. |
 
 ## Near-term roadmap
 

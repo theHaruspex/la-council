@@ -5,6 +5,7 @@ import type { ToolDefinition } from "../../agent/ports/tools.js";
 
 const DEFAULT_TOOL_PARAMS = { type: "object", properties: {} } as const;
 const ROLE_DEVELOPER = "developer";
+const ASSISTANT_ROLE = "assistant";
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (!value || typeof value !== "object") return false;
@@ -51,6 +52,18 @@ export class OpenAIModel implements ModelPort {
           if (m.toolCallId) toolMsg.tool_call_id = m.toolCallId;
           return toolMsg;
         }
+        if (m.role === ASSISTANT_ROLE && m.toolCalls?.length) {
+          const tool_calls = m.toolCalls.map((c) => ({
+            id: c.id,
+            type: "function",
+            function: { name: c.tool, arguments: JSON.stringify(c.args ?? {}) }
+          }));
+          return {
+            role: ASSISTANT_ROLE,
+            content: m.content === "" ? null : m.content,
+            tool_calls
+          };
+        }
         return { role: m.role, content: m.content };
       })
     ];
@@ -82,7 +95,15 @@ export class OpenAIModel implements ModelPort {
         }
         return { id, tool, args };
       });
-      return { type: "tool_calls", calls };
+      return {
+        type: "tool_calls",
+        calls,
+        assistantMessage: {
+          role: ASSISTANT_ROLE,
+          content: ((msg?.content as string | null | undefined) ?? "") || "",
+          toolCalls: calls
+        }
+      };
     }
 
     const text = (msg?.content as string | null | undefined) ?? "";

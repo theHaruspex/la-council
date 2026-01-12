@@ -7,7 +7,10 @@ export type ModelMessage = {
   content: string;
   name?: string;
   toolCallId?: string;
+  toolCalls?: ToolCall[];
 };
+
+export type AssistantToolCallMessage = ModelMessage & { role: "assistant"; toolCalls: ToolCall[] };
 
 export type ModelInput = {
   system: string;
@@ -17,7 +20,7 @@ export type ModelInput = {
 
 export type ModelOutput =
   | { type: "final"; text: string }
-  | { type: "tool_calls"; calls: ToolCall[] };
+  | { type: "tool_calls"; calls: ToolCall[]; assistantMessage: AssistantToolCallMessage };
 
 export interface ModelPort {
   generate(input: ModelInput): Promise<ModelOutput>;

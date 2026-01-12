@@ -44,8 +44,9 @@ describe("AgentRuntime", () => {
   });
 
   it("single tool call then final", async () => {
+    const calls = [{ tool: "web.open", args: { url: "https://example.com" } }];
     const model = new MockModel([
-      { type: "tool_calls", calls: [{ tool: "web.open", args: { url: "https://example.com" } }] },
+      { type: "tool_calls", calls, assistantMessage: { role: "assistant", content: "", toolCalls: calls } },
       { type: "final", text: "here you go" }
     ]);
     const tools = new FakeTools();
@@ -65,13 +66,15 @@ describe("AgentRuntime", () => {
   });
 
   it("multiple tool calls in one model step then final", async () => {
+    const calls = [
+      { tool: "web.open", args: { url: "https://example.com/a" }, id: "call-a" },
+      { tool: "web.open", args: { url: "https://example.com/b" }, id: "call-b" }
+    ];
     const model = new MockModel([
       {
         type: "tool_calls",
-        calls: [
-          { tool: "web.open", args: { url: "https://example.com/a" }, id: "call-a" },
-          { tool: "web.open", args: { url: "https://example.com/b" }, id: "call-b" }
-        ]
+        calls,
+        assistantMessage: { role: "assistant", content: "", toolCalls: calls }
       },
       { type: "final", text: "done" }
     ]);
@@ -88,7 +91,8 @@ describe("AgentRuntime", () => {
   });
 
   it("disallowed tool is blocked", async () => {
-    const model = new MockModel([{ type: "tool_calls", calls: [{ tool: "email.send", args: { to: "x@y.com" } }] }]);
+    const calls = [{ tool: "email.send", args: { to: "x@y.com" } }];
+    const model = new MockModel([{ type: "tool_calls", calls, assistantMessage: { role: "assistant", content: "", toolCalls: calls } }]);
     const tools = new FakeTools();
     const state = new MemoryStateStore();
 
@@ -101,13 +105,15 @@ describe("AgentRuntime", () => {
   });
 
   it("maxToolCallsPerTurn caps multi-call batches", async () => {
+    const calls = [
+      { tool: "web.open", args: { url: "https://example.com/a" } },
+      { tool: "web.open", args: { url: "https://example.com/b" } }
+    ];
     const model = new MockModel([
       {
         type: "tool_calls",
-        calls: [
-          { tool: "web.open", args: { url: "https://example.com/a" } },
-          { tool: "web.open", args: { url: "https://example.com/b" } }
-        ]
+        calls,
+        assistantMessage: { role: "assistant", content: "", toolCalls: calls }
       }
     ]);
     const tools = new FakeTools();
