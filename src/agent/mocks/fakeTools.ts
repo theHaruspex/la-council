@@ -6,10 +6,7 @@ export type FakeToolsCall = { tool: string; args: unknown };
 export class FakeTools implements ToolExecutor {
   public readonly calls: FakeToolsCall[] = [];
 
-  private readonly citation: Citation = {
-    url: "https://example.com/la-council",
-    title: "Example (canned)"
-  };
+  private readonly defaultTitle = "Example (canned)";
 
   async listTools(): Promise<ToolDefinition[]> {
     return [
@@ -30,9 +27,13 @@ export class FakeTools implements ToolExecutor {
     if (tool !== "web.open") {
       return { content: `Unknown tool: ${tool}` };
     }
+    const url =
+      typeof (args as { url?: unknown } | null)?.url === "string"
+        ? ((args as { url: string }).url as string)
+        : "https://example.com/la-council";
     return {
       content: "CANNED_WEB_CONTENT: Los Angeles City Council context (placeholder).",
-      citations: [this.citation]
+      citations: [{ url, title: this.defaultTitle }]
     };
   }
 }

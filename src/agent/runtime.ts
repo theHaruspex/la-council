@@ -33,6 +33,11 @@ const noopTurn: TurnHandle = {
 };
 const noopTracer: Tracer = { startTurn: () => noopTurn };
 
+const MAX_TOOL_CALLS_TEXT = "Sorry — I hit the maximum number of tool calls for this turn.";
+const DISALLOWED_TOOL_TEXT = "Sorry — that capability isn't enabled in this agent.";
+const TOOL_FAILED_TEXT = "Sorry — a tool failed while trying to help with that.";
+const EMPTY_TOOL_CALLS_TEXT = "Sorry — I received an empty tool call request.";
+
 function nowMs(): number {
   return Date.now();
 }
@@ -128,55 +133,75 @@ export class AgentRuntime {
           return AgentResultSchema.parse(result);
         }
 
-        // tool call
-        toolCalls += 1;
-        if (toolCalls > this.config.maxToolCallsPerTurn) {
-          turn.event("safety.max_tool_calls_exceeded", { toolCalls, max: this.config.maxToolCallsPerTurn });
-          const text = "Sorry — I hit the maximum number of tool calls for this turn.";
-          const result: AgentResult = { replyText: text, citations, toolTrace };
+        // tool calls (batched)
+        if (!out.calls.length) {
+          turn.event("safety.empty_tool_calls");
+          const result: AgentResult = { replyText: EMPTY_TOOL_CALLS_TEXT, citations, toolTrace };
           turn.end("error", { toolCalls });
           return AgentResultSchema.parse(result);
         }
 
-        if (!isToolAllowed(out.tool)) {
-          turn.event("safety.disallowed_tool", { tool: out.tool });
-          const text = "Sorry — that capability isn't enabled in this agent.";
-          const result: AgentResult = {
-            replyText: text,
-            citations,
-            toolTrace
-          };
-          turn.end("error", { disallowedTool: out.tool });
+        // Enforce allowlist across the batch before calling any tools.
+        const disallowed = out.calls.find((c) => !isToolAllowed(c.tool));
+        if (disallowed) {
+          turn.event("safety.disallowed_tool", { tool: disallowed.tool });
+          const result: AgentResult = { replyText: DISALLOWED_TOOL_TEXT, citations, toolTrace };
+          turn.end("error", { disallowedTool: disallowed.tool });
           return AgentResultSchema.parse(result);
         }
 
-        const start = nowMs();
-        let toolOk = false;
-        let toolResult: ToolResult | undefined;
-        const toolSpan = turn.span("tools.call");
-        try {
-          toolResult = await withTimeout(this.tools.call(out.tool, out.args), this.config.toolCallTimeoutMs, out.tool);
-          toolOk = true;
-          toolSpan.end({ ok: true, citations: toolResult.citations?.length ?? 0 });
-        } catch (err) {
-          toolSpan.end({ ok: false, error: String(err) });
-          const ms = nowMs() - start;
-          toolTrace.push({ tool: out.tool, ms, ok: false });
-          turn.end("error", { tool: out.tool });
-          const text = "Sorry — a tool failed while trying to help with that.";
-          return AgentResultSchema.parse({ replyText: text, citations, toolTrace });
+        // Enforce max calls per turn across the whole turn, counting each call individually.
+        for (const _ of out.calls) {
+          toolCalls += 1;
+          if (toolCalls > this.config.maxToolCallsPerTurn) {
+            turn.event("safety.max_tool_calls_exceeded", { toolCalls, max: this.config.maxToolCallsPerTurn });
+            const result: AgentResult = { replyText: MAX_TOOL_CALLS_TEXT, citations, toolTrace };
+            turn.end("error", { toolCalls });
+            return AgentResultSchema.parse(result);
+          }
         }
 
-        const ms = nowMs() - start;
-        toolTrace.push({ tool: out.tool, ms, ok: toolOk });
-        if (toolResult?.citations?.length) citations.push(...toolResult.citations);
+        const toolSpan = turn.span("tools.call");
+        const results = await Promise.allSettled(
+          out.calls.map(async (call) => {
+            const start = nowMs();
+            const r = await withTimeout(this.tools.call(call.tool, call.args), this.config.toolCallTimeoutMs, call.tool);
+            const ms = nowMs() - start;
+            return { call, result: r, ms };
+          })
+        );
 
-        // Feed tool result back to the model and continue.
-        messages.push({
-          role: "tool",
-          name: out.tool,
-          content: toolResult?.content ?? ""
-        });
+        // If any tool call fails, stop the turn (do not continue).
+        const failed = results.find((r) => r.status === "rejected");
+        if (failed) {
+          toolSpan.end({ ok: false });
+          // record trace for any completed calls; failing call has no per-call ms
+          for (const r of results) {
+            if (r.status === "fulfilled") {
+              toolTrace.push({ tool: r.value.call.tool, ms: r.value.ms, ok: true });
+              if (r.value.result.citations?.length) citations.push(...r.value.result.citations);
+            }
+          }
+          turn.end("error", { tool: "batch" });
+          return AgentResultSchema.parse({ replyText: TOOL_FAILED_TEXT, citations, toolTrace });
+        }
+
+        toolSpan.end({ ok: true, calls: out.calls.length });
+
+        // All succeeded; preserve message order from out.calls.
+        const fulfilled = results as Array<
+          { status: "fulfilled"; value: { call: { id?: string; tool: string; args: unknown }; result: ToolResult; ms: number } }
+        >;
+        for (const r of fulfilled) {
+          toolTrace.push({ tool: r.value.call.tool, ms: r.value.ms, ok: true });
+          if (r.value.result.citations?.length) citations.push(...r.value.result.citations);
+          messages.push({
+            role: "tool",
+            name: r.value.call.tool,
+            content: r.value.result.content ?? "",
+            toolCallId: r.value.call.id
+          });
+        }
       }
     } catch (err) {
       turn.end("error", { error: String(err) });

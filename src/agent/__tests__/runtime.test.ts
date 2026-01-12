@@ -45,7 +45,7 @@ describe("AgentRuntime", () => {
 
   it("single tool call then final", async () => {
     const model = new MockModel([
-      { type: "tool_call", tool: "web.open", args: { url: "https://example.com" } },
+      { type: "tool_calls", calls: [{ tool: "web.open", args: { url: "https://example.com" } }] },
       { type: "final", text: "here you go" }
     ]);
     const tools = new FakeTools();
@@ -64,8 +64,31 @@ describe("AgentRuntime", () => {
     expect(result.toolTrace?.[0]?.ok).toBe(true);
   });
 
+  it("multiple tool calls in one model step then final", async () => {
+    const model = new MockModel([
+      {
+        type: "tool_calls",
+        calls: [
+          { tool: "web.open", args: { url: "https://example.com/a" }, id: "call-a" },
+          { tool: "web.open", args: { url: "https://example.com/b" }, id: "call-b" }
+        ]
+      },
+      { type: "final", text: "done" }
+    ]);
+    const tools = new FakeTools();
+    const state = new MemoryStateStore();
+
+    const agent = new AgentRuntime({ model, tools, state, tracer: noopTracer });
+    const result = await agent.handle(envelope({ mode: "web" }));
+
+    expect(tools.calls).toHaveLength(2);
+    expect(result.replyText).toBe("done");
+    expect(result.toolTrace).toHaveLength(2);
+    expect(result.citations).toHaveLength(2);
+  });
+
   it("disallowed tool is blocked", async () => {
-    const model = new MockModel([{ type: "tool_call", tool: "email.send", args: { to: "x@y.com" } }]);
+    const model = new MockModel([{ type: "tool_calls", calls: [{ tool: "email.send", args: { to: "x@y.com" } }] }]);
     const tools = new FakeTools();
     const state = new MemoryStateStore();
 
@@ -75,6 +98,32 @@ describe("AgentRuntime", () => {
     expect(tools.calls).toHaveLength(0);
     expect(result.replyText.toLowerCase()).toContain("isn't enabled");
     expect(result.citations).toEqual([]);
+  });
+
+  it("maxToolCallsPerTurn caps multi-call batches", async () => {
+    const model = new MockModel([
+      {
+        type: "tool_calls",
+        calls: [
+          { tool: "web.open", args: { url: "https://example.com/a" } },
+          { tool: "web.open", args: { url: "https://example.com/b" } }
+        ]
+      }
+    ]);
+    const tools = new FakeTools();
+    const state = new MemoryStateStore();
+
+    const agent = new AgentRuntime({
+      model,
+      tools,
+      state,
+      tracer: noopTracer,
+      config: { maxToolCallsPerTurn: 1 }
+    });
+    const result = await agent.handle(envelope({ mode: "web" }));
+
+    expect(tools.calls).toHaveLength(0);
+    expect(result.replyText.toLowerCase()).toContain("maximum number of tool calls");
   });
 });
 
