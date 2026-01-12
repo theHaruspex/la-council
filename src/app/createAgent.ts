@@ -1,18 +1,10 @@
 import { AgentRuntime } from "../agent/runtime.js";
-import type { ModelInput, ModelOutput, ModelPort } from "../agent/ports/model.js";
 import type { StateMessage, StateStore } from "../agent/ports/state.js";
 import type { ToolDefinition, ToolExecutor, ToolResult } from "../agent/ports/tools.js";
 import type { Tracer, TurnHandle } from "../agent/ports/trace.js";
 
-const CANNED_PREFIX = "You said:";
-
-class CannedModel implements ModelPort {
-  async generate(input: ModelInput): Promise<ModelOutput> {
-    const lastUser = [...input.messages].reverse().find((m) => m.role === "user");
-    const text = `${CANNED_PREFIX} ${lastUser?.content ?? ""}`.trim();
-    return { type: "final", text };
-  }
-}
+import { loadAgentEnv } from "./config/agentEnv.js";
+import { createModel } from "./factories/createModel.js";
 
 class NoopTools implements ToolExecutor {
   async listTools(): Promise<ToolDefinition[]> {
@@ -50,12 +42,13 @@ class NoopTracer implements Tracer {
 }
 
 export function createAgent(): AgentRuntime {
-  const model = new CannedModel();
+  const config = loadAgentEnv();
+  const model = createModel(config.model);
   const tools = new NoopTools();
   const state = new MemoryStateStore();
   const tracer = new NoopTracer();
 
-  return new AgentRuntime({ model, tools, state, tracer });
+  return new AgentRuntime({ model, tools, state, tracer, config: config.runtime });
 }
 
 

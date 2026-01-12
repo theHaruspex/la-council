@@ -96,6 +96,7 @@ curl http://127.0.0.1:8787/healthz
 | 2026-01-11 | Tightened HTTP host correctness (auth short-circuit, explicit returns, centralized TurnEngine, 500 JSON) | Next: wire real engine composition in `src/app/createAgent.ts` (still keep `src/agent` pure). |
 | 2026-01-11 | Added root `dev:api` script + hardened Vite proxy to IPv4 + local run docs | Next: implement the `web/` chat UI that calls `/turn` (frontend layer). |
 | 2026-01-11 | Agent engine supports batched multi-tool-call model outputs (`tool_calls`) | Next: wire a real model adapter that can emit parallel tool calls (no provider integration yet). |
+| 2026-01-11 | App composition is now config-driven for model + runtime settings (Option A) | Next: add a real model provider implementation behind the factory (OpenAI later). |
 
 ## Near-term roadmap
 
